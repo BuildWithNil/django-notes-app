@@ -8,16 +8,16 @@ load_dotenv()
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key secret!
+# Security key
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-change-me")
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Debug mode
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
 
-# Allowed hosts (comma-separated in .env)
+# Allowed hosts
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
-# Application definition
+# Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -25,14 +25,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Your apps here
+
+    # Third-party apps
     'rest_framework',
     'corsheaders',
-    'notes',  # Example app
+
+    # Local apps
+    'notes',
 ]
 
+# Middleware
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # For CORS
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -44,6 +48,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_notes_app.urls'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -62,22 +67,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_notes_app.wsgi.application'
 
-# Database config — uses MySQL inside Docker
+# Database config
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("MYSQL_DATABASE", "django_notes"),
-        'USER': os.getenv("MYSQL_USER", "root"),
-        'PASSWORD': os.getenv("MYSQL_PASSWORD", "Nil1998"),
-        'HOST': os.getenv("MYSQL_HOST", "db"),  # 'db' is service name in docker-compose
-        'PORT': os.getenv("MYSQL_PORT", "3306"),
+        'NAME': os.getenv("DB_NAME", "django_notes"),
+        'USER': os.getenv("DB_USER", "root"),
+        'PASSWORD': os.getenv("DB_PASSWORD", ""),
+        'HOST': os.getenv("DB_HOST", "db"),
+        'PORT': os.getenv("DB_PORT", "3306"),
         'OPTIONS': {
             'charset': 'utf8mb4',
         }
     }
 }
 
-# Password validation
+# Password validators
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -100,8 +105,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
+# Default PK field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS Settings
+# CORS
 CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "True").lower() in ("true", "1", "yes")
