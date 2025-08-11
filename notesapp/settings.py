@@ -1,16 +1,16 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv  # <-- new
+from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-&dzi#zsb(hz6p(s#anunt&#-a%ohr2hld71*i72*^exvw-yq$y'
-
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+# Security settings
+SECRET_KEY = os.getenv("SECRET_KEY", "unsafe-secret-key")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost 127.0.0.1 0.0.0.0").split()
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,7 +21,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework.authtoken',  # Required for TokenAuthentication
 ]
 
 MIDDLEWARE = [
@@ -62,14 +63,15 @@ REST_FRAMEWORK = {
 
 WSGI_APPLICATION = 'notesapp.wsgi.application'
 
+# Database (MySQL in Docker)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("DB_NAME", "django_notes"),
-        'USER': os.getenv("DB_USER", "root"),
-        'PASSWORD': os.getenv("DB_PASSWORD", "password123"),
-        'HOST': os.getenv("DB_HOST", "127.0.0.1"),
-        'PORT': os.getenv("DB_PORT", "3306"),
+        'NAME': os.getenv("MYSQL_DATABASE", "django_notes"),
+        'USER': os.getenv("MYSQL_USER", "root"),
+        'PASSWORD': os.getenv("MYSQL_PASSWORD", "password123"),
+        'HOST': os.getenv("MYSQL_HOST", "db"),  # Docker service name
+        'PORT': os.getenv("MYSQL_PORT", "3306"),
     }
 }
 
@@ -85,9 +87,16 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'mynotes/build/static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Static & Media settings
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'mynotes/build/static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL_ORIGINS", "True").lower() == "true"

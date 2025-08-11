@@ -3,8 +3,8 @@ version: "3.8"
 services:
   nginx:
     build: ./nginx
-    image: nginx
-    container_name: "nginx_cont"
+    image: nginx:latest
+    container_name: nginx_cont
     ports:
       - "80:80"
     restart: always
@@ -12,20 +12,27 @@ services:
       - django_app
     networks:
       - notes-app-nw
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   django_app:
     build:
       context: .
     image: django_app
-    container_name: "django_cont"
+    container_name: django_cont
     ports:
       - "8000:8000"
-    command: sh -c "python manage.py migrate --noinput && gunicorn notesapp.wsgi --bind 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate --noinput && gunicorn notesapp.wsgi:application --bind 0.0.0.0:8000"
     env_file:
       - ".env"
     depends_on:
       - db
     restart: always
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/admin || exit 1"]
       interval: 10s
@@ -36,15 +43,17 @@ services:
       - notes-app-nw
 
   db:
-    image: mysql
-    container_name: "db_cont"
+    image: mysql:8.0
+    container_name: db_cont
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=test_db
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - ./data/mysql/db:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,3 +63,7 @@ services:
 
 networks:
   notes-app-nw:
+
+volumes:
+  static_volume:
+  media_volume:

@@ -6,7 +6,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'notesdb'),
         'USER': os.environ.get('DB_USER', 'notesuser'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'notespass'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': '3306',
+        'HOST': os.environ.get('DB_HOST', 'db'),  # use service name from docker-compose
+        'PORT': os.environ.get('DB_PORT', '3306'),
     }
 }
